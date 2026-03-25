@@ -10,6 +10,8 @@ import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequest;
+import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
 import org.elasticsearch.action.get.GetRequest;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexRequest;
@@ -22,6 +24,7 @@ import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestClientBuilder;
 import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.cluster.health.ClusterHealthStatus;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.rest.RestStatus;
@@ -150,6 +153,23 @@ public class IndexerService {
         if(null == response)
         	return null;
         return response.status();
+    }
+
+    public boolean isElasticsearchHealthy() {
+        try {
+            ClusterHealthRequest request = new ClusterHealthRequest();
+            ClusterHealthResponse response =
+                    esClient.cluster().health(request, RequestOptions.DEFAULT);
+
+            ClusterHealthStatus status = response.getStatus();
+
+            // GREEN and YELLOW are usually acceptable
+            return status == ClusterHealthStatus.GREEN ||
+                    status == ClusterHealthStatus.YELLOW;
+
+        } catch (Exception e) {
+            return false;
+        }
     }
 
 

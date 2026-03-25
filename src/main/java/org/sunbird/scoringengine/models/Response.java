@@ -2,9 +2,13 @@
 
 package org.sunbird.scoringengine.models;
 
+import org.springframework.http.HttpStatus;
+
 import java.io.Serializable;
+import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 public class Response implements Serializable, Cloneable {
 
@@ -12,8 +16,21 @@ public class Response implements Serializable, Cloneable {
 	private String id;
 	private String ver;
 	private String ts;
-	private Map<String, Object> result = new HashMap<>();
+	private RespParam params;
+	private HttpStatus responseCode;
 
+	private transient Map<String, Object> result = new HashMap<>();
+
+	public Response() {
+		this.ver = "v1";
+		this.ts = new Timestamp(System.currentTimeMillis()).toString();
+		this.params = new RespParam(UUID.randomUUID().toString());
+	}
+
+	public Response(String id) {
+		this();
+		this.id = id;
+	}
 	public String getId() {
 		return id;
 	}
@@ -58,6 +75,22 @@ public class Response implements Serializable, Cloneable {
 		return result.containsKey(key);
 	}
 
+	public RespParam getParams() {
+		return this.params;
+	}
+
+	public void setParams(RespParam params) {
+		this.params = params;
+	}
+
+	public HttpStatus getResponseCode() {
+		return this.responseCode;
+	}
+
+	public void setResponseCode(HttpStatus responseCode) {
+		this.responseCode = responseCode;
+	}
+
 	public Response clone(Response response) {
 		try {
 			return (Response) response.clone();
@@ -65,4 +98,6 @@ public class Response implements Serializable, Cloneable {
 			return null;
 		}
 	}
+
+
 }
